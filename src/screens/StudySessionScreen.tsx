@@ -37,8 +37,9 @@ export default function StudySessionScreen() {
   const route = useRoute<StudySessionRouteProp>();
   const { durationSeconds } = route.params;
 
-  // タイマー残り時間
+  // タイマー残り時間（表示用state + 終了判定用ref）
   const [remainingSeconds, setRemainingSeconds] = useState(durationSeconds);
+  const remainingSecondsRef = useRef(durationSeconds);
   // シャッフルされた問題リスト（無限ループのためにインデックスで管理）
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -60,19 +61,27 @@ export default function StudySessionScreen() {
     questionStartRef.current = Date.now();
 
     // カウントダウンタイマーを開始する
+    // ※タイマーコールバック内でfinishSessionを直接呼ぶとスタールクロージャになるため、
+    //   refで残り時間を管理して時間切れを検知する
     timerRef.current = setInterval(() => {
-      setRemainingSeconds((prev) => {
-        if (prev <= 1) {
-          stopTimer();
-          finishSession();
-          return 0;
-        }
-        return prev - 1;
-      });
+      remainingSecondsRef.current -= 1;
+      setRemainingSeconds(remainingSecondsRef.current);
+
+      if (remainingSecondsRef.current <= 0) {
+        stopTimer();
+        // タイマー終了はフラグ経由でuseEffectから処理する
+      }
     }, 1000);
 
     return () => stopTimer();
   }, []);
+
+  // タイマーが0になったらセッションを終了する
+  useEffect(() => {
+    if (remainingSeconds <= 0) {
+      finishSession();
+    }
+  }, [remainingSeconds]);
 
   // Androidのバックボタンで中断できないようにする
   useFocusEffect(
@@ -126,9 +135,17 @@ export default function StudySessionScreen() {
     isFinishedRef.current = true;
     stopTimer();
 
-    const elapsed = durationSeconds - remainingSeconds;
-    const session = await saveStudySession(elapsed, resultsRef.current);
-    navigation.replace('SessionResult', { sessionId: session.id });
+    // refから経過時間を取得することでスタールクロージャを避ける
+    const elapsed = durationSeconds - remainingSecondsRef.current;
+    try {
+      const session = await saveStudySession(elapsed, resultsRef.current);
+      navigation.replace('SessionResult', { sessionId: session.id });
+    } catch (error) {
+      // 保存失敗時はエラーを表示してホームへ戻る
+      Alert.alert('エラー', `結果の保存に失敗しました: ${String(error)}`, [
+        { text: 'ホームへ戻る', onPress: () => navigation.navigate('Home') },
+      ]);
+    }
   }
 
   /** 途中終了の確認ダイアログ */
