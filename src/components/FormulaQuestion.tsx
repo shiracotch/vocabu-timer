@@ -136,6 +136,19 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
             ))}
           </View>
 
+          {/* 数字ボタン */}
+          <View style={styles.buttonRow}>
+            {['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].map((num) => (
+              <TouchableOpacity
+                key={num}
+                style={[styles.keyButton, styles.numButton]}
+                onPress={() => handlePressToken(num)}
+              >
+                <Text style={styles.numButtonText}>{num}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
           {/* 操作ボタン */}
           <View style={styles.buttonRow}>
             <TouchableOpacity style={[styles.keyButton, styles.clearButton]} onPress={handleClear}>
@@ -234,6 +247,9 @@ const styles = StyleSheet.create({
 
   opButton: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#e0e0e0' },
   opButtonText: { fontSize: 20, color: '#333' },
+
+  numButton: { backgroundColor: '#f8f8f8', borderWidth: 1, borderColor: '#e0e0e0' },
+  numButtonText: { fontSize: 16, fontWeight: '600', color: '#333' },
 
   clearButton: { backgroundColor: '#f0f0f0', flex: 1 },
   clearButtonText: { fontSize: 14, color: '#666' },
