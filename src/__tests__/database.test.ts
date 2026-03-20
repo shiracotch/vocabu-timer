@@ -197,4 +197,27 @@ describe('fetchOverallStats', () => {
     // (10 + 20 + 30) / 3 = 20
     expect(stats.avgAnswerSeconds).toBeCloseTo(20, 5);
   });
+
+  // L115-117 カバレッジ: getFirstAsync が null を返した場合の null ガード
+  test('DBが null 行を返した場合はデフォルト値 0 を返す', async () => {
+    mockDb.getFirstAsync.mockResolvedValueOnce(null);
+    const stats = await fetchOverallStats();
+    expect(stats.totalAnswered).toBe(0);
+    expect(stats.correctCount).toBe(0);
+    expect(stats.avgAnswerSeconds).toBe(0);
+  });
+});
+
+// ─── カバレッジ補完: DB 未初期化エラー（L37）────────────────────────────────
+
+describe('DB未初期化エラー（L37 カバレッジ）', () => {
+  test('initDatabase 未呼び出しで saveStudySession を呼ぶとエラーを投げる', async () => {
+    // jest.resetModules でモジュールキャッシュをクリアし、db = null の初期状態を再現する
+    jest.resetModules();
+    jest.mock('expo-sqlite', () => ({
+      openDatabaseAsync: jest.fn().mockResolvedValue(mockDb),
+    }));
+    const { saveStudySession: freshSave } = require('../db/database');
+    await expect(freshSave(60, [])).rejects.toThrow('DBが初期化されていません');
+  });
 });

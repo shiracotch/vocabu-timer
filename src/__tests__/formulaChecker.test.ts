@@ -123,4 +123,26 @@ describe('validateFormula', () => {
     const error = validateFormula('x ÷ ( x + y )', ['x', 'y']);
     expect(error).toBeNull();
   });
+
+  // L90 カバレッジ: isFinite チェック（Infinity になる式）
+  test('結果が Infinity になる式（x ÷ 0）は有効な数式エラーを返す', () => {
+    // ダミー値 x=10 のとき 10÷0 = Infinity → !isFinite のブランチ
+    const error = validateFormula('x ÷ 0', ['x']);
+    expect(error).toBe('有効な数式を入力してください');
+  });
+});
+
+// ─── カバレッジ補完: Infinity / NaN のエッジケース ────────────────────────────
+
+describe('checkFormulaEquivalence: Infinity / NaN ケース（L56 カバレッジ）', () => {
+  test('ユーザー式が Infinity を返す場合（x ÷ 0）は false を返す', () => {
+    // x=50 のとき x/0 = Infinity → !isFinite ブランチ
+    const result = checkFormulaEquivalence('x ÷ 0', 'x', ['x']);
+    expect(result).toBe(false);
+  });
+
+  test('正解式が Infinity を返す場合も false を返す', () => {
+    const result = checkFormulaEquivalence('x', 'x / 0', ['x']);
+    expect(result).toBe(false);
+  });
 });
