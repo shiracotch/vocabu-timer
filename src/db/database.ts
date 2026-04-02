@@ -7,29 +7,61 @@ import { StudySession, QuestionResult } from '../types';
 
 const DB_NAME = 'vocabu-timer.db';
 
+// スキーマバージョン（カラム追加などの変更時にインクリメントする）
+const SCHEMA_VERSION = 1;
+
 let db: SQLite.SQLiteDatabase | null = null;
 
-/** DBに接続し、テーブルを初期化する */
+/** DBに接続し、マイグレーションを実行してテーブルを初期化する */
 export async function initDatabase(): Promise<void> {
   db = await SQLite.openDatabaseAsync(DB_NAME);
-  await db.execAsync(`
-    PRAGMA journal_mode = WAL;
+  await db.execAsync('PRAGMA journal_mode = WAL;');
 
-    CREATE TABLE IF NOT EXISTS study_sessions (
-      id TEXT PRIMARY KEY NOT NULL,
-      startedAt INTEGER NOT NULL,
-      durationSeconds INTEGER NOT NULL
-    );
+  const currentVersion = await getSchemaVersion();
 
-    CREATE TABLE IF NOT EXISTS question_results (
-      id TEXT PRIMARY KEY NOT NULL,
-      sessionId TEXT NOT NULL,
-      questionId TEXT NOT NULL,
-      isCorrect INTEGER NOT NULL,
-      answerSeconds REAL NOT NULL,
-      FOREIGN KEY (sessionId) REFERENCES study_sessions(id) ON DELETE CASCADE
-    );
-  `);
+  if (currentVersion < SCHEMA_VERSION) {
+    await migrate(currentVersion);
+  }
+}
+
+/** 現在のスキーマバージョンを取得する */
+async function getSchemaVersion(): Promise<number> {
+  const row = await getDb().getFirstAsync<{ user_version: number }>(
+    'PRAGMA user_version'
+  );
+  return row?.user_version ?? 0;
+}
+
+/**
+ * スキーマのマイグレーションを実行する
+ * バージョンごとに差分を適用し、最終的にSCHEMA_VERSIONまで上げる
+ */
+async function migrate(fromVersion: number): Promise<void> {
+  if (fromVersion < 1) {
+    // v0 → v1: テーブルを正規の定義で作り直す
+    // （旧バージョンで startedAt カラムなしで作成されていた問題を修正）
+    await getDb().execAsync(`
+      DROP TABLE IF EXISTS question_results;
+      DROP TABLE IF EXISTS study_sessions;
+
+      CREATE TABLE study_sessions (
+        id TEXT PRIMARY KEY NOT NULL,
+        startedAt INTEGER NOT NULL,
+        durationSeconds INTEGER NOT NULL
+      );
+
+      CREATE TABLE question_results (
+        id TEXT PRIMARY KEY NOT NULL,
+        sessionId TEXT NOT NULL,
+        questionId TEXT NOT NULL,
+        isCorrect INTEGER NOT NULL,
+        answerSeconds REAL NOT NULL,
+        FOREIGN KEY (sessionId) REFERENCES study_sessions(id) ON DELETE CASCADE
+      );
+    `);
+  }
+
+  await getDb().execAsync(`PRAGMA user_version = ${SCHEMA_VERSION};`);
 }
 
 /** DB接続を取得する（未初期化の場合はエラー） */
