@@ -9,10 +9,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  useColorScheme,
 } from 'react-native';
 
 import { FormulaQuestion } from '../types';
 import { checkFormulaEquivalence, validateFormula } from '../utils/formulaChecker';
+import { getColors } from '../theme/colors';
 
 type Props = {
   question: FormulaQuestion;
@@ -32,6 +34,7 @@ const OPERATORS = [
 ];
 
 export default function FormulaQuestionView({ question, onAnswer }: Props) {
+  const colors = getColors(useColorScheme());
   const [formula, setFormula] = useState('');
   const [answerState, setAnswerState] = useState<AnswerState>('inputting');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -75,18 +78,18 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {/* 問題文 */}
-      <View style={styles.bodyContainer}>
+      <View style={[styles.bodyContainer, { backgroundColor: colors.surface }]}>
         <Text style={styles.typeLabel}>計算式問題</Text>
-        <Text style={styles.body}>{question.body}</Text>
+        <Text style={[styles.body, { color: colors.textPrimary }]}>{question.body}</Text>
       </View>
 
       {/* 変数の凡例 */}
-      <View style={styles.variablesContainer}>
-        <Text style={styles.variablesTitle}>変数</Text>
+      <View style={[styles.variablesContainer, { backgroundColor: colors.surfaceSubtle }]}>
+        <Text style={[styles.variablesTitle, { color: colors.textTertiary }]}>変数</Text>
         {question.variables.map((v) => (
           <View key={v.name} style={styles.variableRow}>
             <Text style={styles.variableName}>{v.name}</Text>
-            <Text style={styles.variableLabel}> = {v.label}</Text>
+            <Text style={[styles.variableLabel, { color: colors.textSecondary }]}> = {v.label}</Text>
           </View>
         ))}
       </View>
@@ -94,10 +97,11 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
       {/* 入力表示欄 */}
       <View style={[
         styles.inputDisplay,
+        { backgroundColor: colors.surface, borderColor: colors.border },
         answerState === 'correct' && styles.inputDisplayCorrect,
         answerState === 'incorrect' && styles.inputDisplayIncorrect,
       ]}>
-        <Text style={styles.inputText} numberOfLines={2}>
+        <Text style={[styles.inputText, { color: colors.textPrimary }]} numberOfLines={2}>
           {formula || '式をボタンで入力してください'}
         </Text>
       </View>
@@ -115,7 +119,7 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
             {question.variables.map((v) => (
               <TouchableOpacity
                 key={v.name}
-                style={[styles.keyButton, styles.varButton]}
+                style={[styles.keyButton, { backgroundColor: colors.varButtonBg }]}
                 onPress={() => handlePressToken(v.name)}
               >
                 <Text style={styles.varButtonText}>{v.name}</Text>
@@ -128,10 +132,10 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
             {OPERATORS.map((op) => (
               <TouchableOpacity
                 key={op.value}
-                style={[styles.keyButton, styles.opButton]}
+                style={[styles.keyButton, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }]}
                 onPress={() => handlePressToken(op.value)}
               >
-                <Text style={styles.opButtonText}>{op.display}</Text>
+                <Text style={[styles.opButtonText, { color: colors.textPrimary }]}>{op.display}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -141,24 +145,30 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
             {['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'].map((num) => (
               <TouchableOpacity
                 key={num}
-                style={[styles.keyButton, styles.numButton]}
+                style={[styles.keyButton, { backgroundColor: colors.surfaceSubtle, borderWidth: 1, borderColor: colors.border }]}
                 onPress={() => handlePressToken(num)}
               >
-                <Text style={styles.numButtonText}>{num}</Text>
+                <Text style={[styles.numButtonText, { color: colors.textPrimary }]}>{num}</Text>
               </TouchableOpacity>
             ))}
           </View>
 
           {/* 操作ボタン */}
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.keyButton, styles.clearButton]} onPress={handleClear}>
-              <Text style={styles.clearButtonText}>クリア</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.keyButton, styles.backspaceButton]} onPress={handleBackspace}>
-              <Text style={styles.backspaceButtonText}>⌫</Text>
+            <TouchableOpacity
+              style={[styles.keyButton, { backgroundColor: colors.buttonSecondary, flex: 1 }]}
+              onPress={handleClear}
+            >
+              <Text style={[styles.clearButtonText, { color: colors.textSecondary }]}>クリア</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.keyButton, styles.submitButton, !formula && styles.submitButtonDisabled]}
+              style={[styles.keyButton, { backgroundColor: colors.buttonSecondary, flex: 1 }]}
+              onPress={handleBackspace}
+            >
+              <Text style={[styles.backspaceButtonText, { color: colors.textSecondary }]}>⌫</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.keyButton, styles.submitButton, { flex: 2 }, !formula && styles.submitButtonDisabled]}
               onPress={handleSubmit}
               disabled={!formula}
             >
@@ -174,7 +184,7 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
           styles.explanation,
           answerState === 'correct' ? styles.explanationCorrect : styles.explanationIncorrect,
         ]}>
-          <Text style={styles.explanationTitle}>
+          <Text style={[styles.explanationTitle, { color: colors.textPrimary }]}>
             {answerState === 'correct' ? '✓ 正解' : '✗ 不正解'}
           </Text>
           {answerState === 'incorrect' && (
@@ -182,7 +192,7 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
               正解例: {question.correctFormula.replace(/\*/g, '×').replace(/\//g, '÷')}
             </Text>
           )}
-          <Text style={styles.explanationText}>{question.explanation}</Text>
+          <Text style={[styles.explanationText, { color: colors.textSecondary }]}>{question.explanation}</Text>
         </View>
       )}
     </ScrollView>
@@ -193,7 +203,6 @@ const styles = StyleSheet.create({
   container: { padding: 16, gap: 12, paddingBottom: 32 },
 
   bodyContainer: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     gap: 8,
@@ -204,31 +213,28 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   typeLabel: { fontSize: 11, color: '#FF9500', fontWeight: '700' },
-  body: { fontSize: 16, color: '#333', lineHeight: 24 },
+  body: { fontSize: 16, lineHeight: 24 },
 
   variablesContainer: {
-    backgroundColor: '#f8f8f8',
     borderRadius: 10,
     padding: 12,
     gap: 4,
   },
-  variablesTitle: { fontSize: 11, color: '#999', fontWeight: '600', marginBottom: 4 },
+  variablesTitle: { fontSize: 11, fontWeight: '600', marginBottom: 4 },
   variableRow: { flexDirection: 'row', alignItems: 'center' },
   variableName: { fontSize: 16, fontWeight: '700', color: '#4A90E2', width: 20 },
-  variableLabel: { fontSize: 14, color: '#555' },
+  variableLabel: { fontSize: 14 },
 
   inputDisplay: {
-    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 14,
     minHeight: 56,
     borderWidth: 1.5,
-    borderColor: '#e0e0e0',
     justifyContent: 'center',
   },
   inputDisplayCorrect: { borderColor: '#34C759', backgroundColor: '#f0fdf4' },
   inputDisplayIncorrect: { borderColor: '#FF3B30', backgroundColor: '#fff5f5' },
-  inputText: { fontSize: 18, color: '#333', fontFamily: 'monospace' },
+  inputText: { fontSize: 18, fontFamily: 'monospace' },
 
   errorText: { fontSize: 13, color: '#FF3B30', textAlign: 'center' },
 
@@ -242,27 +248,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  varButton: { backgroundColor: '#EAF2FD' },
   varButtonText: { fontSize: 18, fontWeight: '700', color: '#4A90E2' },
+  opButtonText: { fontSize: 20 },
+  numButtonText: { fontSize: 16, fontWeight: '600' },
 
-  opButton: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#e0e0e0' },
-  opButtonText: { fontSize: 20, color: '#333' },
-
-  numButton: { backgroundColor: '#f8f8f8', borderWidth: 1, borderColor: '#e0e0e0' },
-  numButtonText: { fontSize: 16, fontWeight: '600', color: '#333' },
-
-  clearButton: { backgroundColor: '#f0f0f0', flex: 1 },
-  clearButtonText: { fontSize: 14, color: '#666' },
-  backspaceButton: { backgroundColor: '#f0f0f0', flex: 1 },
-  backspaceButtonText: { fontSize: 20, color: '#666' },
-  submitButton: { backgroundColor: '#4A90E2', flex: 2 },
+  clearButtonText: { fontSize: 14 },
+  backspaceButtonText: { fontSize: 20 },
+  submitButton: { backgroundColor: '#4A90E2' },
   submitButtonDisabled: { backgroundColor: '#b0c8ef' },
   submitButtonText: { fontSize: 16, color: '#fff', fontWeight: '700' },
 
   explanation: { borderRadius: 12, padding: 16, gap: 8 },
   explanationCorrect: { backgroundColor: '#f0fdf4', borderLeftWidth: 4, borderLeftColor: '#34C759' },
   explanationIncorrect: { backgroundColor: '#fff5f5', borderLeftWidth: 4, borderLeftColor: '#FF3B30' },
-  explanationTitle: { fontSize: 14, fontWeight: '700', color: '#333' },
+  explanationTitle: { fontSize: 14, fontWeight: '700' },
   correctFormula: { fontSize: 14, color: '#4A90E2', fontFamily: 'monospace' },
-  explanationText: { fontSize: 14, color: '#555', lineHeight: 22 },
+  explanationText: { fontSize: 14, lineHeight: 22 },
 });

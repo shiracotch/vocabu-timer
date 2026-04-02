@@ -12,6 +12,7 @@ import {
   AppState,
   AppStateStatus,
   BackHandler,
+  useColorScheme,
 } from 'react-native';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -23,6 +24,7 @@ import { QUESTIONS } from '../data/questions';
 import { saveStudySession } from '../db/database';
 import MultipleChoiceQuestionView from '../components/MultipleChoiceQuestion';
 import FormulaQuestionView from '../components/FormulaQuestion';
+import { getColors } from '../theme/colors';
 
 type StudySessionNavProp = NativeStackNavigationProp<RootStackParamList, 'StudySession'>;
 type StudySessionRouteProp = RouteProp<RootStackParamList, 'StudySession'>;
@@ -38,6 +40,7 @@ export default function StudySessionScreen() {
   const navigation = useNavigation<StudySessionNavProp>();
   const route = useRoute<StudySessionRouteProp>();
   const { durationSeconds } = route.params;
+  const colors = getColors(useColorScheme());
 
   // タイマー残り時間（表示用state + 終了判定用ref）
   const [remainingSeconds, setRemainingSeconds] = useState(durationSeconds);
@@ -195,16 +198,19 @@ export default function StudySessionScreen() {
   const currentQuestion = questions[currentIndex];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* ヘッダー */}
-      <View style={styles.header}>
-        <Text style={[styles.timer, remainingSeconds <= 30 && styles.timerWarning]}>
+      <View style={[styles.header, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.timer, { color: colors.textPrimary }, remainingSeconds <= 30 && styles.timerWarning]}>
           {formatTime(remainingSeconds)}
         </Text>
         <View style={styles.headerRight}>
-          <Text style={styles.progressText}>{resultsRef.current.length}問回答済み</Text>
-          <TouchableOpacity style={styles.exitButton} onPress={handleExit}>
-            <Text style={styles.exitButtonText}>終了</Text>
+          <Text style={[styles.progressText, { color: colors.textTertiary }]}>{resultsRef.current.length}問回答済み</Text>
+          <TouchableOpacity
+            style={[styles.exitButton, { backgroundColor: colors.buttonSecondary }]}
+            onPress={handleExit}
+          >
+            <Text style={[styles.exitButtonText, { color: colors.textSecondary }]}>終了</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -238,7 +244,7 @@ export default function StudySessionScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1 },
 
   header: {
     flexDirection: 'row',
@@ -247,24 +253,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 56,
     paddingBottom: 12,
-    backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 4,
     elevation: 2,
   },
-  timer: { fontSize: 36, fontWeight: '700', color: '#333' },
+  timer: { fontSize: 36, fontWeight: '700' },
   timerWarning: { color: '#FF3B30' },
   headerRight: { alignItems: 'flex-end', gap: 4 },
-  progressText: { fontSize: 12, color: '#999' },
+  progressText: { fontSize: 12 },
   exitButton: {
     paddingHorizontal: 14,
     paddingVertical: 6,
-    backgroundColor: '#f0f0f0',
     borderRadius: 14,
   },
-  exitButtonText: { fontSize: 14, color: '#666' },
+  exitButtonText: { fontSize: 14 },
 
   questionArea: { flex: 1 },
 

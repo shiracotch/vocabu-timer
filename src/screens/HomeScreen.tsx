@@ -3,17 +3,19 @@
  * 累計統計（正答率・平均回答時間）の表示と学習開始ボタンを担当する
  */
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { fetchOverallStats } from '../db/database';
 import { RootStackParamList } from '../types/navigation';
+import { getColors } from '../theme/colors';
 
 type HomeNavProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeNavProp>();
+  const colors = getColors(useColorScheme());
 
   const [totalAnswered, setTotalAnswered] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
@@ -39,26 +41,26 @@ export default function HomeScreen() {
     sec > 0 ? `${sec.toFixed(1)}秒` : '―';
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* 統計カード */}
-      <View style={styles.statsCard}>
-        <Text style={styles.statsTitle}>累計成績</Text>
+      <View style={[styles.statsCard, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.statsTitle, { color: colors.textTertiary }]}>累計成績</Text>
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>
+            <Text style={[styles.statValue, { color: colors.textPrimary }]}>
               {accuracyRate !== null ? `${accuracyRate}%` : '―'}
             </Text>
-            <Text style={styles.statLabel}>正答率</Text>
+            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>正答率</Text>
           </View>
-          <View style={styles.statDivider} />
+          <View style={[styles.statDivider, { backgroundColor: colors.divider }]} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{totalAnswered}</Text>
-            <Text style={styles.statLabel}>解答数</Text>
+            <Text style={[styles.statValue, { color: colors.textPrimary }]}>{totalAnswered}</Text>
+            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>解答数</Text>
           </View>
-          <View style={styles.statDivider} />
+          <View style={[styles.statDivider, { backgroundColor: colors.divider }]} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{formatSeconds(avgAnswerSeconds)}</Text>
-            <Text style={styles.statLabel}>平均回答時間</Text>
+            <Text style={[styles.statValue, { color: colors.textPrimary }]}>{formatSeconds(avgAnswerSeconds)}</Text>
+            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>平均回答時間</Text>
           </View>
         </View>
       </View>
@@ -73,20 +75,20 @@ export default function HomeScreen() {
 
       {/* 統計詳細ボタン */}
       <TouchableOpacity
-        style={styles.statsButton}
+        style={[styles.statsButton, { borderColor: colors.border, backgroundColor: colors.surface }]}
         onPress={() => navigation.navigate('Stats')}
       >
-        <Text style={styles.statsButtonText}>統計を見る</Text>
+        <Text style={[styles.statsButtonText, { color: colors.textSecondary }]}>統計を見る</Text>
       </TouchableOpacity>
 
       {/* 法的情報リンク */}
       <View style={styles.legalLinks}>
         <TouchableOpacity onPress={() => navigation.navigate('Legal', { type: 'privacy' })}>
-          <Text style={styles.legalLinkText}>プライバシーポリシー</Text>
+          <Text style={[styles.legalLinkText, { color: colors.textMuted }]}>プライバシーポリシー</Text>
         </TouchableOpacity>
-        <Text style={styles.legalSeparator}>｜</Text>
+        <Text style={[styles.legalSeparator, { color: colors.divider }]}>｜</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Legal', { type: 'terms' })}>
-          <Text style={styles.legalLinkText}>利用規約</Text>
+          <Text style={[styles.legalLinkText, { color: colors.textMuted }]}>利用規約</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -96,13 +98,11 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
     padding: 24,
     justifyContent: 'center',
     gap: 16,
   },
   statsCard: {
-    backgroundColor: '#fff',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
@@ -113,7 +113,6 @@ const styles = StyleSheet.create({
   },
   statsTitle: {
     fontSize: 13,
-    color: '#999',
     fontWeight: '600',
     marginBottom: 16,
     textAlign: 'center',
@@ -124,9 +123,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statItem: { flex: 1, alignItems: 'center' },
-  statValue: { fontSize: 24, fontWeight: '700', color: '#333' },
-  statLabel: { fontSize: 11, color: '#999', marginTop: 4 },
-  statDivider: { width: 1, height: 40, backgroundColor: '#eee' },
+  statValue: { fontSize: 24, fontWeight: '700' },
+  statLabel: { fontSize: 11, marginTop: 4 },
+  statDivider: { width: 1, height: 40 },
 
   startButton: {
     backgroundColor: '#4A90E2',
@@ -146,10 +145,8 @@ const styles = StyleSheet.create({
     padding: 14,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#fff',
   },
-  statsButtonText: { fontSize: 16, color: '#555' },
+  statsButtonText: { fontSize: 16 },
 
   legalLinks: {
     flexDirection: 'row',
@@ -157,6 +154,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
-  legalLinkText: { fontSize: 12, color: '#aaa' },
-  legalSeparator: { fontSize: 12, color: '#ccc', marginHorizontal: 6 },
+  legalLinkText: { fontSize: 12 },
+  legalSeparator: { fontSize: 12, marginHorizontal: 6 },
 });

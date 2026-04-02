@@ -3,10 +3,11 @@
  * プライバシーポリシーまたは利用規約をアプリ内テキストで表示する
  */
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, Text, StyleSheet, useColorScheme } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 
 import { RootStackParamList } from '../types/navigation';
+import { getColors } from '../theme/colors';
 
 type LegalRouteProp = RouteProp<RootStackParamList, 'Legal'>;
 
@@ -59,19 +60,20 @@ const TERMS_OF_SERVICE = `最終更新日：2026年4月2日
 
 export default function LegalScreen() {
   const route = useRoute<LegalRouteProp>();
+  const colors = getColors(useColorScheme());
   const { type } = route.params;
 
   const content = type === 'privacy' ? PRIVACY_POLICY : TERMS_OF_SERVICE;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.body}>{content}</Text>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
+      <Text style={[styles.body, { color: colors.textSecondary }]}>{content}</Text>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1 },
   content: { padding: 20, paddingBottom: 40 },
-  body: { fontSize: 14, color: '#444', lineHeight: 22 },
+  body: { fontSize: 14, lineHeight: 22 },
 });
