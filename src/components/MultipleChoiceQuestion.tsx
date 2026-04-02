@@ -57,17 +57,29 @@ export default function MultipleChoiceQuestionView({ question, onAnswer }: Props
 
       {/* 選択肢 */}
       <View style={styles.choicesContainer}>
-        {question.choices.map((choice, index) => (
-          <TouchableOpacity
-            key={choice.id}
-            style={getChoiceStyle(choice.id)}
-            onPress={() => handleSelect(choice.id)}
-            disabled={answerState !== 'unanswered'}
-          >
-            <Text style={styles.choiceLabel}>{['ア', 'イ', 'ウ', 'エ'][index]}</Text>
-            <Text style={getChoiceTextStyle(choice.id)}>{choice.text}</Text>
-          </TouchableOpacity>
-        ))}
+        {question.choices.map((choice, index) => {
+          const label = ['ア', 'イ', 'ウ', 'エ'][index];
+          const isSelected = selectedId === choice.id;
+          const isCorrect = choice.isCorrect;
+          let a11yLabel = `${label}、${choice.text}`;
+          if (answerState !== 'unanswered') {
+            a11yLabel += isCorrect ? '、正解' : isSelected ? '、不正解' : '、選択なし';
+          }
+          return (
+            <TouchableOpacity
+              key={choice.id}
+              style={getChoiceStyle(choice.id)}
+              onPress={() => handleSelect(choice.id)}
+              disabled={answerState !== 'unanswered'}
+              accessibilityRole="button"
+              accessibilityLabel={a11yLabel}
+              accessibilityState={{ disabled: answerState !== 'unanswered', selected: isSelected }}
+            >
+              <Text style={styles.choiceLabel}>{label}</Text>
+              <Text style={getChoiceTextStyle(choice.id)}>{choice.text}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       {/* 解説（回答後に表示） */}

@@ -48,7 +48,12 @@ export default function SessionResultScreen() {
     return (
       <View style={[styles.emptyContainer, { backgroundColor: colors.background }]}>
         <Text style={[styles.emptyText, { color: colors.textSecondary }]}>今回は問題を解けませんでした</Text>
-        <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity
+          style={styles.homeButton}
+          onPress={() => navigation.navigate('Home')}
+          accessibilityRole="button"
+          accessibilityLabel="ホームへ戻る"
+        >
           <Text style={styles.homeButtonText}>ホームへ戻る</Text>
         </TouchableOpacity>
       </View>
@@ -100,6 +105,8 @@ export default function SessionResultScreen() {
       <TouchableOpacity
         style={styles.homeButton}
         onPress={() => navigation.navigate('Home')}
+        accessibilityRole="button"
+        accessibilityLabel="ホームへ戻る"
       >
         <Text style={styles.homeButtonText}>ホームへ戻る</Text>
       </TouchableOpacity>
