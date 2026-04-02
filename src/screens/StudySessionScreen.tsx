@@ -25,6 +25,7 @@ import { saveStudySession } from '../db/database';
 import MultipleChoiceQuestionView from '../components/MultipleChoiceQuestion';
 import FormulaQuestionView from '../components/FormulaQuestion';
 import { getColors } from '../theme/colors';
+import { requestNotificationPermission, sendTimerCompleteNotification } from '../utils/notifications';
 
 type StudySessionNavProp = NativeStackNavigationProp<RootStackParamList, 'StudySession'>;
 type StudySessionRouteProp = RouteProp<RootStackParamList, 'StudySession'>;
@@ -60,6 +61,11 @@ export default function StudySessionScreen() {
   const isFinishedRef = useRef(false);
   // バックグラウンド移行時刻（復帰時の差分補正に使用）
   const backgroundedAtRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    // セッション開始時に通知権限をリクエストする（初回のみダイアログが表示される）
+    requestNotificationPermission();
+  }, []);
 
   useEffect(() => {
     // 問題をシャッフルしてセットする
@@ -162,6 +168,11 @@ export default function StudySessionScreen() {
     if (isFinishedRef.current) return;
     isFinishedRef.current = true;
     stopTimer();
+
+    // タイマー自動終了時のみ通知を発行する（バックグラウンドで終了した場合に有効）
+    if (remainingSecondsRef.current <= 0) {
+      await sendTimerCompleteNotification();
+    }
 
     // refから経過時間を取得することでスタールクロージャを避ける
     const elapsed = durationSeconds - remainingSecondsRef.current;
