@@ -69,6 +69,9 @@ export default function HomeScreen() {
       <TouchableOpacity
         style={styles.startButton}
         onPress={() => navigation.navigate('TimerSetup')}
+        accessibilityRole="button"
+        accessibilityLabel="学習開始"
+        accessibilityHint="タイマー設定画面へ移動します"
       >
         <Text style={styles.startButtonText}>学習開始</Text>
       </TouchableOpacity>
@@ -77,17 +80,28 @@ export default function HomeScreen() {
       <TouchableOpacity
         style={[styles.statsButton, { borderColor: colors.border, backgroundColor: colors.surface }]}
         onPress={() => navigation.navigate('Stats')}
+        accessibilityRole="button"
+        accessibilityLabel="統計を見る"
+        accessibilityHint="累計の成績一覧画面へ移動します"
       >
         <Text style={[styles.statsButtonText, { color: colors.textSecondary }]}>統計を見る</Text>
       </TouchableOpacity>
 
       {/* 法的情報リンク */}
       <View style={styles.legalLinks}>
-        <TouchableOpacity onPress={() => navigation.navigate('Legal', { type: 'privacy' })}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Legal', { type: 'privacy' })}
+          accessibilityRole="button"
+          accessibilityLabel="プライバシーポリシーを開く"
+        >
           <Text style={[styles.legalLinkText, { color: colors.textMuted }]}>プライバシーポリシー</Text>
         </TouchableOpacity>
         <Text style={[styles.legalSeparator, { color: colors.divider }]}>｜</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Legal', { type: 'terms' })}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Legal', { type: 'terms' })}
+          accessibilityRole="button"
+          accessibilityLabel="利用規約を開く"
+        >
           <Text style={[styles.legalLinkText, { color: colors.textMuted }]}>利用規約</Text>
         </TouchableOpacity>
       </View>

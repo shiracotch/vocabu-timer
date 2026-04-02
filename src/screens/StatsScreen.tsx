@@ -42,6 +42,9 @@ export default function StatsScreen() {
           <TouchableOpacity
             style={styles.startButton}
             onPress={() => navigation.navigate('TimerSetup')}
+            accessibilityRole="button"
+            accessibilityLabel="学習を始める"
+            accessibilityHint="タイマー設定画面へ移動します"
           >
             <Text style={styles.startButtonText}>学習を始める</Text>
           </TouchableOpacity>

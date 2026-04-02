@@ -209,6 +209,9 @@ export default function StudySessionScreen() {
           <TouchableOpacity
             style={[styles.exitButton, { backgroundColor: colors.buttonSecondary }]}
             onPress={handleExit}
+            accessibilityRole="button"
+            accessibilityLabel="学習を終了する"
+            accessibilityHint="確認ダイアログが表示されます"
           >
             <Text style={[styles.exitButtonText, { color: colors.textSecondary }]}>終了</Text>
           </TouchableOpacity>
@@ -235,7 +238,12 @@ export default function StudySessionScreen() {
 
       {/* 次の問題ボタン（回答後に表示） */}
       {hasAnswered && (
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+        <TouchableOpacity
+          style={styles.nextButton}
+          onPress={handleNext}
+          accessibilityRole="button"
+          accessibilityLabel="次の問題へ進む"
+        >
           <Text style={styles.nextButtonText}>次の問題 →</Text>
         </TouchableOpacity>
       )}

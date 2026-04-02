@@ -48,11 +48,18 @@ export default function TimerSetupScreen() {
           style={[styles.counterButton, minutes <= MIN_MINUTES && styles.counterButtonDisabled]}
           onPress={handleDecrement}
           disabled={minutes <= MIN_MINUTES}
+          accessibilityRole="button"
+          accessibilityLabel="学習時間を1分減らす"
+          accessibilityState={{ disabled: minutes <= MIN_MINUTES }}
         >
           <Text style={styles.counterButtonText}>−</Text>
         </TouchableOpacity>
 
-        <View style={styles.timeDisplay}>
+        <View
+          style={styles.timeDisplay}
+          accessibilityRole="text"
+          accessibilityLabel={`現在の設定：${minutes}分`}
+        >
           <Text style={[styles.timeValue, { color: colors.textPrimary }]}>{minutes}</Text>
           <Text style={[styles.timeUnit, { color: colors.textSecondary }]}>分</Text>
         </View>
@@ -61,6 +68,9 @@ export default function TimerSetupScreen() {
           style={[styles.counterButton, minutes >= MAX_MINUTES && styles.counterButtonDisabled]}
           onPress={handleIncrement}
           disabled={minutes >= MAX_MINUTES}
+          accessibilityRole="button"
+          accessibilityLabel="学習時間を1分増やす"
+          accessibilityState={{ disabled: minutes >= MAX_MINUTES }}
         >
           <Text style={styles.counterButtonText}>＋</Text>
         </TouchableOpacity>
@@ -77,6 +87,9 @@ export default function TimerSetupScreen() {
               minutes === preset && styles.presetButtonActive,
             ]}
             onPress={() => setMinutes(preset)}
+            accessibilityRole="button"
+            accessibilityLabel={`${preset}分`}
+            accessibilityState={{ selected: minutes === preset }}
           >
             <Text
               style={[
@@ -92,7 +105,12 @@ export default function TimerSetupScreen() {
       </View>
 
       {/* 開始ボタン */}
-      <TouchableOpacity style={styles.startButton} onPress={handleStart}>
+      <TouchableOpacity
+        style={styles.startButton}
+        onPress={handleStart}
+        accessibilityRole="button"
+        accessibilityLabel={`${minutes}分で学習を開始`}
+      >
         <Text style={styles.startButtonText}>開始</Text>
       </TouchableOpacity>
     </View>

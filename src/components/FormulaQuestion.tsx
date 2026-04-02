@@ -121,6 +121,8 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
                 key={v.name}
                 style={[styles.keyButton, { backgroundColor: colors.varButtonBg }]}
                 onPress={() => handlePressToken(v.name)}
+                accessibilityRole="button"
+                accessibilityLabel={`変数 ${v.name}（${v.label}）を入力`}
               >
                 <Text style={styles.varButtonText}>{v.name}</Text>
               </TouchableOpacity>
@@ -134,6 +136,8 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
                 key={op.value}
                 style={[styles.keyButton, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }]}
                 onPress={() => handlePressToken(op.value)}
+                accessibilityRole="button"
+                accessibilityLabel={`${op.display} を入力`}
               >
                 <Text style={[styles.opButtonText, { color: colors.textPrimary }]}>{op.display}</Text>
               </TouchableOpacity>
@@ -147,6 +151,8 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
                 key={num}
                 style={[styles.keyButton, { backgroundColor: colors.surfaceSubtle, borderWidth: 1, borderColor: colors.border }]}
                 onPress={() => handlePressToken(num)}
+                accessibilityRole="button"
+                accessibilityLabel={`${num} を入力`}
               >
                 <Text style={[styles.numButtonText, { color: colors.textPrimary }]}>{num}</Text>
               </TouchableOpacity>
@@ -158,12 +164,16 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
             <TouchableOpacity
               style={[styles.keyButton, { backgroundColor: colors.buttonSecondary, flex: 1 }]}
               onPress={handleClear}
+              accessibilityRole="button"
+              accessibilityLabel="式をクリア"
             >
               <Text style={[styles.clearButtonText, { color: colors.textSecondary }]}>クリア</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.keyButton, { backgroundColor: colors.buttonSecondary, flex: 1 }]}
               onPress={handleBackspace}
+              accessibilityRole="button"
+              accessibilityLabel="最後のトークンを削除"
             >
               <Text style={[styles.backspaceButtonText, { color: colors.textSecondary }]}>⌫</Text>
             </TouchableOpacity>
@@ -171,6 +181,9 @@ export default function FormulaQuestionView({ question, onAnswer }: Props) {
               style={[styles.keyButton, styles.submitButton, { flex: 2 }, !formula && styles.submitButtonDisabled]}
               onPress={handleSubmit}
               disabled={!formula}
+              accessibilityRole="button"
+              accessibilityLabel="式を判定する"
+              accessibilityState={{ disabled: !formula }}
             >
               <Text style={styles.submitButtonText}>判定</Text>
             </TouchableOpacity>
