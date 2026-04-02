@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  AppState,
+  AppStateStatus,
   BackHandler,
 } from 'react-native';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
@@ -53,6 +55,8 @@ export default function StudySessionScreen() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // セッション終了済みフラグ（二重実行防止）
   const isFinishedRef = useRef(false);
+  // バックグラウンド移行時刻（復帰時の差分補正に使用）
+  const backgroundedAtRef = useRef<number | null>(null);
 
   useEffect(() => {
     // 問題をシャッフルしてセットする
@@ -82,6 +86,27 @@ export default function StudySessionScreen() {
       finishSession();
     }
   }, [remainingSeconds]);
+
+  // バックグラウンド中の経過時間をタイマーに反映する
+  useEffect(() => {
+    const handleAppStateChange = (nextState: AppStateStatus) => {
+      if (nextState === 'background' || nextState === 'inactive') {
+        // バックグラウンド移行時刻を記録する
+        backgroundedAtRef.current = Date.now();
+      } else if (nextState === 'active' && backgroundedAtRef.current !== null) {
+        // フォアグラウンド復帰時に差分を残り時間から引く
+        const elapsedMs = Date.now() - backgroundedAtRef.current;
+        const elapsedSec = Math.floor(elapsedMs / 1000);
+        backgroundedAtRef.current = null;
+
+        remainingSecondsRef.current = Math.max(0, remainingSecondsRef.current - elapsedSec);
+        setRemainingSeconds(remainingSecondsRef.current);
+      }
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => subscription.remove();
+  }, []);
 
   // Androidのバックボタンで中断できないようにする
   useFocusEffect(

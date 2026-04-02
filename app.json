@@ -12,7 +12,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.astralstudy.vocabutimer"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,6 +22,7 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
+      "package": "com.astralstudy.vocabutimer",
       "predictiveBackGestureEnabled": false
     },
     "web": {
