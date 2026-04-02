@@ -36,7 +36,12 @@ const mockDb = {
     return Promise.resolve(rows);
   }),
 
-  getFirstAsync: jest.fn().mockImplementation(() => {
+  getFirstAsync: jest.fn().mockImplementation((sql: string) => {
+    // スキーマバージョン取得（マイグレーション判定に使用）
+    if (sql.includes('PRAGMA user_version')) {
+      return Promise.resolve({ user_version: 0 });
+    }
+    // 累計統計取得
     const totalAnswered = insertedResults.length;
     const correctCount = insertedResults.filter(r => r.isCorrect === 1).length;
     const avgAnswerSeconds =
@@ -79,7 +84,10 @@ beforeEach(() => {
       .map(r => ({ ...r }));
     return Promise.resolve(rows);
   });
-  mockDb.getFirstAsync.mockImplementation(() => {
+  mockDb.getFirstAsync.mockImplementation((sql: string) => {
+    if (sql.includes('PRAGMA user_version')) {
+      return Promise.resolve({ user_version: 0 });
+    }
     const totalAnswered = insertedResults.length;
     const correctCount = insertedResults.filter(r => r.isCorrect === 1).length;
     const avgAnswerSeconds =
@@ -91,11 +99,19 @@ beforeEach(() => {
 });
 
 describe('initDatabase', () => {
-  test('DBを開いてテーブル作成SQLを実行する', async () => {
+  test('DBを開いてWAL設定とマイグレーションを実行する', async () => {
     await initDatabase();
     const SQLite = jest.requireMock('expo-sqlite');
     expect(SQLite.openDatabaseAsync).toHaveBeenCalledWith('vocabu-timer.db');
-    expect(mockDb.execAsync).toHaveBeenCalledTimes(1);
+    // WAL設定が実行されること
+    expect(mockDb.execAsync).toHaveBeenCalledWith('PRAGMA journal_mode = WAL;');
+    // マイグレーションでテーブル作成SQLが実行されること
+    expect(mockDb.execAsync).toHaveBeenCalledWith(
+      expect.stringContaining('CREATE TABLE study_sessions')
+    );
+    expect(mockDb.execAsync).toHaveBeenCalledWith(
+      expect.stringContaining('CREATE TABLE question_results')
+    );
   });
 });
 
