@@ -13,4 +13,6 @@ export type RootStackParamList = {
   SessionResult: { sessionId: string };
   /** 累計統計 */
   Stats: undefined;
+  /** 法的情報（プライバシーポリシー / 利用規約） */
+  Legal: { type: 'privacy' | 'terms' };
 };
