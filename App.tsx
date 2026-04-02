@@ -14,6 +14,7 @@ import TimerSetupScreen from './src/screens/TimerSetupScreen';
 import StudySessionScreen from './src/screens/StudySessionScreen';
 import SessionResultScreen from './src/screens/SessionResultScreen';
 import StatsScreen from './src/screens/StatsScreen';
+import LegalScreen from './src/screens/LegalScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -71,6 +72,13 @@ export default function App() {
           name="Stats"
           component={StatsScreen}
           options={{ title: '統計' }}
+        />
+        <Stack.Screen
+          name="Legal"
+          component={LegalScreen}
+          options={({ route }) => ({
+            title: route.params.type === 'privacy' ? 'プライバシーポリシー' : '利用規約',
+          })}
         />
       </Stack.Navigator>
     </NavigationContainer>

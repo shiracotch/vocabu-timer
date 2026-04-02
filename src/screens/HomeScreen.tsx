@@ -78,6 +78,17 @@ export default function HomeScreen() {
       >
         <Text style={styles.statsButtonText}>統計を見る</Text>
       </TouchableOpacity>
+
+      {/* 法的情報リンク */}
+      <View style={styles.legalLinks}>
+        <TouchableOpacity onPress={() => navigation.navigate('Legal', { type: 'privacy' })}>
+          <Text style={styles.legalLinkText}>プライバシーポリシー</Text>
+        </TouchableOpacity>
+        <Text style={styles.legalSeparator}>｜</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Legal', { type: 'terms' })}>
+          <Text style={styles.legalLinkText}>利用規約</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -139,4 +150,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   statsButtonText: { fontSize: 16, color: '#555' },
+
+  legalLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  legalLinkText: { fontSize: 12, color: '#aaa' },
+  legalSeparator: { fontSize: 12, color: '#ccc', marginHorizontal: 6 },
 });
