@@ -3,9 +3,10 @@
  * 選択肢をタップすると正誤判定し、解説を表示する
  */
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, useColorScheme } from 'react-native';
 
 import { MultipleChoiceQuestion } from '../types';
+import { getColors } from '../theme/colors';
 
 type Props = {
   question: MultipleChoiceQuestion;
@@ -15,6 +16,7 @@ type Props = {
 type AnswerState = 'unanswered' | 'correct' | 'incorrect';
 
 export default function MultipleChoiceQuestionView({ question, onAnswer }: Props) {
+  const colors = getColors(useColorScheme());
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [answerState, setAnswerState] = useState<AnswerState>('unanswered');
 
@@ -30,26 +32,27 @@ export default function MultipleChoiceQuestionView({ question, onAnswer }: Props
   }
 
   function getChoiceStyle(choiceId: string) {
-    if (answerState === 'unanswered') return styles.choice;
+    const base = [styles.choice, { backgroundColor: colors.surface, borderColor: colors.border }];
+    if (answerState === 'unanswered') return base;
     const choice = question.choices.find((c) => c.id === choiceId);
     if (choice?.isCorrect) return [styles.choice, styles.choiceCorrect];
     if (choiceId === selectedId) return [styles.choice, styles.choiceIncorrect];
-    return [styles.choice, styles.choiceDimmed];
+    return [styles.choice, { backgroundColor: colors.surface, borderColor: colors.border }, styles.choiceDimmed];
   }
 
   function getChoiceTextStyle(choiceId: string) {
-    if (answerState === 'unanswered') return styles.choiceText;
+    if (answerState === 'unanswered') return [styles.choiceText, { color: colors.textPrimary }];
     const choice = question.choices.find((c) => c.id === choiceId);
-    if (choice?.isCorrect || choiceId === selectedId) return [styles.choiceText, styles.choiceTextHighlight];
+    if (choice?.isCorrect || choiceId === selectedId) return [styles.choiceText, styles.choiceTextHighlight, { color: colors.textPrimary }];
     return [styles.choiceText, styles.choiceTextDimmed];
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {/* 問題文 */}
-      <View style={styles.bodyContainer}>
+      <View style={[styles.bodyContainer, { backgroundColor: colors.surface }]}>
         <Text style={styles.typeLabel}>4択問題</Text>
-        <Text style={styles.body}>{question.body}</Text>
+        <Text style={[styles.body, { color: colors.textPrimary }]}>{question.body}</Text>
       </View>
 
       {/* 選択肢 */}
@@ -70,10 +73,10 @@ export default function MultipleChoiceQuestionView({ question, onAnswer }: Props
       {/* 解説（回答後に表示） */}
       {answerState !== 'unanswered' && (
         <View style={[styles.explanation, answerState === 'correct' ? styles.explanationCorrect : styles.explanationIncorrect]}>
-          <Text style={styles.explanationTitle}>
+          <Text style={[styles.explanationTitle, { color: colors.textPrimary }]}>
             {answerState === 'correct' ? '✓ 正解' : '✗ 不正解'}
           </Text>
-          <Text style={styles.explanationText}>{question.explanation}</Text>
+          <Text style={[styles.explanationText, { color: colors.textSecondary }]}>{question.explanation}</Text>
         </View>
       )}
     </ScrollView>
@@ -84,7 +87,6 @@ const styles = StyleSheet.create({
   container: { padding: 16, gap: 16, paddingBottom: 32 },
 
   bodyContainer: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     gap: 8,
@@ -95,18 +97,16 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   typeLabel: { fontSize: 11, color: '#4A90E2', fontWeight: '700' },
-  body: { fontSize: 16, color: '#333', lineHeight: 24 },
+  body: { fontSize: 16, lineHeight: 24 },
 
   choicesContainer: { gap: 10 },
   choice: {
-    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     borderWidth: 1.5,
-    borderColor: '#e0e0e0',
   },
   choiceCorrect: { borderColor: '#34C759', backgroundColor: '#f0fdf4' },
   choiceIncorrect: { borderColor: '#FF3B30', backgroundColor: '#fff5f5' },
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     width: 20,
     textAlign: 'center',
   },
-  choiceText: { fontSize: 15, color: '#333', flex: 1, lineHeight: 22 },
+  choiceText: { fontSize: 15, flex: 1, lineHeight: 22 },
   choiceTextHighlight: { fontWeight: '600' },
   choiceTextDimmed: { color: '#aaa' },
 
@@ -129,6 +129,6 @@ const styles = StyleSheet.create({
   },
   explanationCorrect: { backgroundColor: '#f0fdf4', borderLeftWidth: 4, borderLeftColor: '#34C759' },
   explanationIncorrect: { backgroundColor: '#fff5f5', borderLeftWidth: 4, borderLeftColor: '#FF3B30' },
-  explanationTitle: { fontSize: 14, fontWeight: '700', color: '#333' },
-  explanationText: { fontSize: 14, color: '#555', lineHeight: 22 },
+  explanationTitle: { fontSize: 14, fontWeight: '700' },
+  explanationText: { fontSize: 14, lineHeight: 22 },
 });

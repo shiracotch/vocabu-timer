@@ -4,11 +4,12 @@
  * デフォルト25分、1〜60分の範囲で変更可能
  */
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { RootStackParamList } from '../types/navigation';
+import { getColors } from '../theme/colors';
 
 type TimerSetupNavProp = NativeStackNavigationProp<RootStackParamList, 'TimerSetup'>;
 
@@ -22,6 +23,7 @@ const PRESET_MINUTES = [5, 10, 15, 25, 30, 45, 60];
 
 export default function TimerSetupScreen() {
   const navigation = useNavigation<TimerSetupNavProp>();
+  const colors = getColors(useColorScheme());
   const [minutes, setMinutes] = useState(DEFAULT_MINUTES);
 
   function handleDecrement() {
@@ -37,8 +39,8 @@ export default function TimerSetupScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>学習時間を設定</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>学習時間を設定</Text>
 
       {/* 時間カウンター */}
       <View style={styles.counterContainer}>
@@ -51,8 +53,8 @@ export default function TimerSetupScreen() {
         </TouchableOpacity>
 
         <View style={styles.timeDisplay}>
-          <Text style={styles.timeValue}>{minutes}</Text>
-          <Text style={styles.timeUnit}>分</Text>
+          <Text style={[styles.timeValue, { color: colors.textPrimary }]}>{minutes}</Text>
+          <Text style={[styles.timeUnit, { color: colors.textSecondary }]}>分</Text>
         </View>
 
         <TouchableOpacity
@@ -69,11 +71,19 @@ export default function TimerSetupScreen() {
         {PRESET_MINUTES.map((preset) => (
           <TouchableOpacity
             key={preset}
-            style={[styles.presetButton, minutes === preset && styles.presetButtonActive]}
+            style={[
+              styles.presetButton,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+              minutes === preset && styles.presetButtonActive,
+            ]}
             onPress={() => setMinutes(preset)}
           >
             <Text
-              style={[styles.presetButtonText, minutes === preset && styles.presetButtonTextActive]}
+              style={[
+                styles.presetButtonText,
+                { color: colors.textSecondary },
+                minutes === preset && styles.presetButtonTextActive,
+              ]}
             >
               {preset}分
             </Text>
@@ -92,14 +102,12 @@ export default function TimerSetupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
     padding: 24,
     justifyContent: 'center',
     gap: 32,
   },
   label: {
     fontSize: 16,
-    color: '#666',
     textAlign: 'center',
     fontWeight: '600',
   },
@@ -131,8 +139,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: 4,
   },
-  timeValue: { fontSize: 72, fontWeight: '700', color: '#333', lineHeight: 80 },
-  timeUnit: { fontSize: 24, color: '#666', paddingBottom: 10 },
+  timeValue: { fontSize: 72, fontWeight: '700', lineHeight: 80 },
+  timeUnit: { fontSize: 24, paddingBottom: 10 },
 
   presetContainer: {
     flexDirection: 'row',
@@ -144,15 +152,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#ddd',
   },
   presetButtonActive: {
     backgroundColor: '#4A90E2',
     borderColor: '#4A90E2',
   },
-  presetButtonText: { fontSize: 14, color: '#555' },
+  presetButtonText: { fontSize: 14 },
   presetButtonTextActive: { color: '#fff', fontWeight: '600' },
 
   startButton: {
